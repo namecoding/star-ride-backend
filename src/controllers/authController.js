@@ -9,16 +9,42 @@ export const checkPhone = async (req, res) => {
 
   const user = await User.findOne({ phone });
 
-  if (user) {
+  // 1. User does not exist
+  if (!user) {
     return res.json({
-      exists: true,
-      requiresPassword: true,
+      status: "NEW_USER",
+      exists: false,
     });
   }
 
+  // 2. Not verified (OTP not done)
+  if (!user.isVerified) {
+    return res.json({
+      status: "VERIFY_OTP",
+      exists: true,
+    });
+  }
+
+  // 3. Profile not complete
+  if (!user.firstName || !user.lastName) {
+    return res.json({
+      status: "INCOMPLETE_PROFILE",
+      exists: true,
+    });
+  }
+
+  // 4. No password yet
+  if (!user.password) {
+    return res.json({
+      status: "SET_PASSWORD",
+      exists: true,
+    });
+  }
+
+  // 5. Fully ready
   return res.json({
-    exists: false,
-    requiresRegistration: true,
+    status: "LOGIN",
+    exists: true,
   });
 };
 
@@ -225,6 +251,12 @@ export const setPassword = async (req, res) => {
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
+  }
+
+  if (!user.isVerified) {
+    return res.status(403).json({
+      message: "Verify phone before setting password",
+    });
   }
 
   const hashed = await bcrypt.hash(password, 10);
