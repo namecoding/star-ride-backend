@@ -1,5 +1,5 @@
 import Ride from "../models/Ride.js";
-import { io } from "../server.js";
+import { io } from "../sockets/socket.js";
 import { acceptRideService, findNearbyDrivers } from "../services/rideService.js";
 import User from "../models/User.js";
 
