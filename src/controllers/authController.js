@@ -259,13 +259,35 @@ export const setPassword = async (req, res) => {
     });
   }
 
-  const hashed = await bcrypt.hash(password, 10);
+  if (!user.firstName || !user.lastName) {
+    return res.status(400).json({
+      message: "Complete your profile before setting password",
+      status: "INCOMPLETE_PROFILE",
+    });
+  }
 
+  const hashed = await bcrypt.hash(password, 10);
   user.password = hashed;
 
   await user.save();
 
+  const token = generateToken(user);
+
+  // 🚀 sanitize user safely
+  const safeUser = {
+    _id: user._id,
+    phone: user.phone,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    isVerified: user.isVerified,
+    location: user.location,
+    createdAt: user.createdAt,
+  };
+
   res.json({
     message: "Password set successfully",
+    token,
+    user: safeUser,
   });
 };
