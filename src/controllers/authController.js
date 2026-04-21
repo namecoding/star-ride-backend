@@ -80,7 +80,7 @@ export const sendOTP = async (req, res) => {
     });
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = generateOTP();
 
   user.otp = otp;
   user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
