@@ -2,6 +2,8 @@ import Ride from "../models/Ride.js";
 import { io } from "../sockets/socket.js";
 import { acceptRideService, findNearbyDrivers } from "../services/rideService.js";
 import User from "../models/User.js";
+import Notification from "../models/Notifications.js";
+
 
 export const createRide = async (req, res) => {
   const userId = req.user._id;
@@ -40,6 +42,21 @@ export const createRide = async (req, res) => {
 
     paymentMethod,
     status: "pending",
+  });
+
+  await Notification.create({
+    userId: userId,
+    userType: "customer",
+    title: "Finding Driver",
+    message: "We are searching for nearby drivers...",
+    type: "ride",
+    priority: "normal",
+    action: "SEARCHING_RIDE",
+  });
+  
+  io.to(`customer_${userId}`).emit("notification:new", {
+    title: "Finding Driver",
+    message: "We are searching for nearby drivers...",
   });
 
   //io.emit("ride:new", newRide);
