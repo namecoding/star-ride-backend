@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { sanitizePlugin } from "../utils/mongooseSanitize.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -58,6 +59,19 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.plugin(sanitizePlugin, {
+  hidden: [
+    "password",
+    "otp",
+    "otpExpires",
+    "otpAttempts",
+    "otpResendCount",
+    "otpLastSentAt",
+    "otpLockedUntil",
+    "__v",
+  ],
+});
 
 userSchema.index({ location: "2dsphere" });
 
