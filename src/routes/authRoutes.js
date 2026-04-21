@@ -3,9 +3,8 @@ import {
   checkPhone,
   completeProfile,
   CustomersLogin,
-  DriversLogin
+  DriversLogin, sendOTP, verifyOTP, setPassword
 } from "../controllers/authController.js";
-import { sendOTP, verifyOTP, setPassword } from "../controllers/authController.js";
 
 const router = express.Router();
 
