@@ -49,6 +49,11 @@ const NotificationSchema = new mongoose.Schema(
       action: {
         type: String, // e.g. "OPEN_RIDE", "VIEW_PROMO"
       },
+      isDeleted: {
+        type: Boolean,
+        default: false,
+        index: true,
+      },
   },
   {
     timestamps: true,
