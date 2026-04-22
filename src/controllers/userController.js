@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-
+import { generateOTP } from "../utils/otp.js";
 
 export const getMe = async (req, res) => {
     res.json({
