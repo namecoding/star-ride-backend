@@ -71,22 +71,6 @@ export const getMe = async (req, res) => {
     }
   };
 
-  const parseDOB = (dob) => {
-    if (!dob) return null;
-  
-    // already ISO or Date object safe
-    if (dob.includes("-") && !dob.includes("/")) {
-      return new Date(dob);
-    }
-  
-    // DD/MM/YYYY
-    const [day, month, year] = dob.split("/");
-  
-    if (!day || !month || !year) return null;
-  
-    return new Date(`${year}-${month}-${day}`);
-  };
-
   export const editAccount = async (req, res) => {
     try {
       const userId = req.user._id;
@@ -127,7 +111,7 @@ export const getMe = async (req, res) => {
       if (lastName !== undefined) user.lastName = lastName;
   
       if (dob !== undefined) {
-        user.dob = parseDOB(dob);
+        user.dob = dob;
       }
   
       await user.save();
