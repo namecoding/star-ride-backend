@@ -9,8 +9,6 @@ export const getMe = async (req, res) => {
     });
   };
 
-
-
   export const changePassword = async (req, res) => {
     try {
       const userId = req.user._id;
@@ -118,8 +116,6 @@ export const getMe = async (req, res) => {
     }
   };
 
-
-
   export const sendChangePhoneOTP = async (req, res) => {
     try {
       const userId = req.user._id;
@@ -202,7 +198,6 @@ export const getMe = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
-
 
   export const verifyChangePhoneOTP = async (req, res) => {
   try {
