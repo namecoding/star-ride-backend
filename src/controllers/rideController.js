@@ -236,14 +236,15 @@ export const getRideTypes = async (req, res) => {
   try {
     const { distance } = req.query;
 
-    const distanceInKm = Number(distance || 0);
+    const distanceInKm = parseFloat(
+      (distance || "0").replace(/[^\d.]/g, "")
+    );
 
     const rideTypes = await RideType.find({ isActive: true });
 
     const result = rideTypes.map((ride) => {
       const price =
-        ride.basePrice +
-        distanceInKm * ride.pricePerKm;
+        ride.basePrice + distanceInKm * ride.pricePerKm;
 
       return {
         id: ride.id,
@@ -253,7 +254,7 @@ export const getRideTypes = async (req, res) => {
         image: ride.image,
         basePrice: ride.basePrice,
         pricePerKm: ride.pricePerKm,
-        price: Math.round(price), // 🔥 computed
+        price: Math.round(price),
       };
     });
 
