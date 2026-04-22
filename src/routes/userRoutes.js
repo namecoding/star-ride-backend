@@ -8,6 +8,6 @@ router.get("/me", protect, getMe);
 
 // Other Auth Flow
 router.post("/change-password", protect, changePassword); 
-router.post("/delete-account", protect, deleteAccount); 
+router.get("/delete-account", protect, deleteAccount); 
 
 export default router;
