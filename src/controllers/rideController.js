@@ -234,9 +234,30 @@ export const updateRideStatus = async (req, res) => {
 
 export const getRideTypes = async (req, res) => {
   try {
+    const { distance } = req.query;
+
+    const distanceInKm = Number(distance || 0);
+
     const rideTypes = await RideType.find({ isActive: true });
 
-    return res.json(rideTypes);
+    const result = rideTypes.map((ride) => {
+      const price =
+        ride.basePrice +
+        distanceInKm * ride.pricePerKm;
+
+      return {
+        id: ride.id,
+        name: ride.name,
+        subtitle: ride.subtitle,
+        seats: ride.seats,
+        image: ride.image,
+        basePrice: ride.basePrice,
+        pricePerKm: ride.pricePerKm,
+        price: Math.round(price), // 🔥 computed
+      };
+    });
+
+    return res.json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error" });
