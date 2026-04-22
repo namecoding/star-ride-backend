@@ -5,7 +5,6 @@ import User from "../models/User.js";
 import Notification from "../models/Notifications.js";
 import RideType from "../models/RideType.js";
 
-
 export const createRide = async (req, res) => {
   const userId = req.user._id;
 
@@ -147,13 +146,11 @@ setTimeout(() => {
   });
 };
 
-
 export const getPendingRides = async (req, res) => {
   const rides = await Ride.find({ status: "pending" }).sort({ createdAt: -1 });
 
   res.json(rides);
 };
-
 
 export const acceptRide_old = async (req, res) => {
   const driverId = req.user._id;

@@ -24,6 +24,8 @@ router.post("/status", protect, updateRideStatus);
 
 router.get('/ride-types', protect, getRideTypes)
 
+
+//open seed route
 router.get("/seed-ride-types", seedRideTypes);
 
 export default router;
