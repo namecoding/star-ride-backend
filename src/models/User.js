@@ -58,6 +58,11 @@ const userSchema = new mongoose.Schema(
     
     otpLockedUntil: Date,
 
+    // ✅ ADD THIS
+  changePhoneOTP: String,
+  changePhoneOTPExpires: Date,
+  changePhoneTarget: String,
+
     location: {
       type: {
         type: String,

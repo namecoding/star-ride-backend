@@ -119,15 +119,25 @@ export const getMe = async (req, res) => {
 
   export const sendChangePhoneOTP = async (req, res) => {
     try {
-      const user = req.user;
+      const userId = req.user._id;
       const { phone } = req.body;
   
       if (!phone) {
         return res.status(400).json({ message: "Phone is required" });
       }
   
-      // ❌ prevent duplicate phone
-      const existing = await User.findOne({ phone });
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      // ❌ prevent duplicate phone (exclude self)
+      const existing = await User.findOne({
+        phone,
+        _id: { $ne: userId },
+      });
+  
       if (existing) {
         return res.status(400).json({
           message: "Phone number already in use",
@@ -158,18 +168,19 @@ export const getMe = async (req, res) => {
   
       const otp = generateOTP();
   
-      // ✅ store OTP + target phone (important!)
+      // ✅ store change phone OTP data
       user.changePhoneOTP = otp;
       user.changePhoneOTPExpires = new Date(Date.now() + 5 * 60 * 1000);
-      user.changePhoneTarget = phone; // 👈 replace pendingPhone with this
+      user.changePhoneTarget = phone;
   
+      // reset attempt counter for this flow
+      user.otpAttempts = 0;
+  
+      // reuse global counters
       user.otpResendCount += 1;
       user.otpLastSentAt = now;
   
       await user.save();
-  
-      // 👉 send SMS using this phone
-      // sendSMS(phone, otp)
   
       res.json({
         message: "OTP sent to new phone",
@@ -184,15 +195,25 @@ export const getMe = async (req, res) => {
 
   export const verifyChangePhoneOTP = async (req, res) => {
     try {
-      const user = req.user;
+      const userId = req.user._id;
       const { otp, phone } = req.body;
   
       if (!otp || !phone) {
-        return res.status(400).json({ message: "OTP and phone are required" });
+        return res.status(400).json({
+          message: "OTP and phone are required",
+        });
+      }
+  
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
   
       if (!user.changePhoneOTP) {
-        return res.status(400).json({ message: "No OTP request found" });
+        return res.status(400).json({
+          message: "No OTP request found",
+        });
       }
   
       // 🔐 LOCK CHECK
@@ -202,14 +223,17 @@ export const getMe = async (req, res) => {
         });
       }
   
-      // ⏳ EXPIRE CHECK
-      if (user.changePhoneOTPExpires < new Date()) {
+      // ⏳ EXPIRE CHECK (safe)
+      if (
+        !user.changePhoneOTPExpires ||
+        user.changePhoneOTPExpires < new Date()
+      ) {
         return res.status(400).json({
           message: "OTP expired. Request new one.",
         });
       }
   
-      // ❌ ensure same phone used
+      // ❌ PHONE MATCH CHECK
       if (user.changePhoneTarget !== phone) {
         return res.status(400).json({
           message: "Phone mismatch. Request new OTP.",
@@ -235,17 +259,18 @@ export const getMe = async (req, res) => {
       // ✅ SUCCESS → update phone
       user.phone = phone;
   
-      // 🧹 CLEAR
+      // 🧹 CLEAR CHANGE PHONE DATA
       user.changePhoneOTP = null;
       user.changePhoneOTPExpires = null;
       user.changePhoneTarget = null;
   
+      // reset counters
       user.otpAttempts = 0;
       user.otpResendCount = 0;
   
       await user.save();
   
-      // 🔔 Notification
+      // 🔔 NOTIFICATION
       await Notification.create({
         userId: user._id,
         userType: "customer",
