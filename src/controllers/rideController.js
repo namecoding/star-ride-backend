@@ -3,6 +3,7 @@ import { io } from "../sockets/socket.js";
 import { acceptRideService, findNearbyDrivers } from "../services/rideService.js";
 import User from "../models/User.js";
 import Notification from "../models/Notifications.js";
+import RideType from "../models/RideType.js";
 
 
 export const createRide = async (req, res) => {
@@ -232,4 +233,13 @@ export const updateRideStatus = async (req, res) => {
     message: "Updated",
     ride,
   });
+};
+
+
+export const getRideTypes = async (req, res) => {
+  const userId = req.user._id;
+  
+  const rideTypes = await RideType.find({ isActive: true });
+
+  res.json(rideTypes);
 };

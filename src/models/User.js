@@ -20,6 +20,13 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
+    wallet: {
+      NGN: {
+        type: Number,
+        default: 0,
+      },
+    },
     
     dob: {
       type: String,
