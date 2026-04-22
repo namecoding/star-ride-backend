@@ -21,6 +21,6 @@ router.post("/accept", protect, acceptRide);
 // status updates
 router.post("/status", protect, updateRideStatus);
 
-router.get('/ride-types', getRideTypes)
+router.get('/ride-types', protect, getRideTypes)
 
 export default router;
