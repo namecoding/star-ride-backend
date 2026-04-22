@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateOTP } from "../utils/otp.js";
+import Notification from "../models/Notifications.js";
 
 export const getMe = async (req, res) => {
     res.json({
@@ -193,15 +194,13 @@ export const getMe = async (req, res) => {
     }
   };
 
-  export const verifyChangePhoneOTP = async (req, res) => {
+  export const sendChangePhoneOTP = async (req, res) => {
     try {
       const userId = req.user._id;
-      const { otp, phone } = req.body;
+      const { phone } = req.body;
   
-      if (!otp || !phone) {
-        return res.status(400).json({
-          message: "OTP and phone are required",
-        });
+      if (!phone) {
+        return res.status(400).json({ message: "Phone is required" });
       }
   
       const user = await User.findById(userId);
@@ -210,84 +209,70 @@ export const getMe = async (req, res) => {
         return res.status(404).json({ message: "User not found" });
       }
   
-      if (!user.changePhoneOTP) {
+      // ❌ prevent duplicate phone
+      const existing = await User.findOne({
+        phone,
+        _id: { $ne: userId },
+      });
+  
+      if (existing) {
         return res.status(400).json({
-          message: "No OTP request found",
+          message: "Phone number already in use",
         });
       }
   
       // 🔐 LOCK CHECK
       if (user.otpLockedUntil && user.otpLockedUntil > new Date()) {
         return res.status(403).json({
-          message: "Account temporarily locked. Try again later.",
+          message: "Too many attempts. Try again later.",
         });
       }
   
-      // ⏳ EXPIRE CHECK (safe)
-      if (
-        !user.changePhoneOTPExpires ||
-        user.changePhoneOTPExpires < new Date()
-      ) {
-        return res.status(400).json({
-          message: "OTP expired. Request new one.",
+      const now = new Date();
+      const oneMinuteAgo = new Date(now.getTime() - 60 * 1000);
+  
+      if (!user.otpLastSentAt || user.otpLastSentAt < oneMinuteAgo) {
+        user.otpResendCount = 0;
+      }
+  
+      if (user.otpResendCount >= 3) {
+        return res.status(429).json({
+          message: "Too many OTP requests. Try again in 1 minute.",
         });
       }
   
-      // ❌ PHONE MATCH CHECK
-      if (user.changePhoneTarget !== phone) {
-        return res.status(400).json({
-          message: "Phone mismatch. Request new OTP.",
-        });
-      }
+      const otp = generateOTP();
   
-      // ❌ WRONG OTP
-      if (user.changePhoneOTP !== otp) {
-        user.otpAttempts += 1;
+      user.changePhoneOTP = otp;
+      user.changePhoneOTPExpires = new Date(Date.now() + 5 * 60 * 1000);
+      user.changePhoneTarget = phone;
   
-        if (user.otpAttempts >= 5) {
-          user.otpLockedUntil = new Date(Date.now() + 10 * 60 * 1000);
-          user.otpAttempts = 0;
-        }
-  
-        await user.save();
-  
-        return res.status(400).json({
-          message: "Invalid OTP",
-        });
-      }
-  
-      // ✅ SUCCESS → update phone
-      user.phone = phone;
-  
-      // 🧹 CLEAR CHANGE PHONE DATA
-      user.changePhoneOTP = null;
-      user.changePhoneOTPExpires = null;
-      user.changePhoneTarget = null;
-  
-      // reset counters
-      user.otpAttempts = 0;
-      user.otpResendCount = 0;
+      user.otpResendCount += 1;
+      user.otpLastSentAt = now;
   
       await user.save();
   
-      // 🔔 NOTIFICATION
+      // 📲 SEND SMS HERE
+      // sendSMS(phone, otp)
+  
+      // 🔔 ALERT USER (IMPORTANT PART)
       await Notification.create({
         userId: user._id,
-        userType: "customer",
-        title: "Phone Updated",
-        message: "Your phone number was changed successfully.",
+        userType: user.role || "customer",
+        title: "Phone Change Requested",
+        message: `A request was made to change your phone number to ${phone}. If this wasn't you, secure your account immediately.`,
         type: "security",
         priority: "high",
-        action: "PHONE_UPDATED",
+        action: "PHONE_CHANGE_REQUESTED",
       });
   
       res.json({
-        message: "Phone number updated successfully",
-        user,
+        message: "OTP sent to new phone",
+        otp, // remove in production
       });
   
     } catch (error) {
-      console.log("verifyChangePhoneOTP error:", error);
+      console.log("sendChangePhoneOTP error:", error);
       res.status(500).json({ message: "Server error" });
     }
   };

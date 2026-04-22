@@ -30,7 +30,7 @@ const NotificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["ride", "promo", "system"],
+      enum: ["ride", "promo", "system", "security"],
       default: "system",
       index: true,
     },
