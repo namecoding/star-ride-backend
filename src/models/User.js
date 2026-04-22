@@ -10,7 +10,20 @@ const userSchema = new mongoose.Schema(
     },
 
     firstName: String,
+    
     lastName: String,
+
+    email: {
+      type: String,
+      unique: true,
+      sparse: true, // ✅ allows multiple nulls
+      lowercase: true,
+      trim: true,
+    },
+    
+    dob: {
+      type: Date,
+    },
 
     password: {
       type: String,
@@ -26,7 +39,9 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    
     otp: String,
+    
     otpExpires: Date,
 
     otpAttempts: {
