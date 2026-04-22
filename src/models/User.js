@@ -22,7 +22,8 @@ const userSchema = new mongoose.Schema(
     },
     
     dob: {
-      type: Date,
+      type: String,
+      trim: true,
     },
 
     password: {
