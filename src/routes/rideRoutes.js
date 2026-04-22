@@ -6,6 +6,7 @@ import {
   acceptRide,
   updateRideStatus, getRideTypes
 } from "../controllers/rideController.js";
+import { seedRideTypes } from "../controllers/seedRideTypes.js";
 
 const router = express.Router();
 
@@ -22,5 +23,7 @@ router.post("/accept", protect, acceptRide);
 router.post("/status", protect, updateRideStatus);
 
 router.get('/ride-types', protect, getRideTypes)
+
+router.get("/seed-ride-types", seedRideTypes);
 
 export default router;

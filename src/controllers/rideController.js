@@ -237,17 +237,9 @@ export const updateRideStatus = async (req, res) => {
 
 export const getRideTypes = async (req, res) => {
   try {
-    const doc = await RideType.findOne(); // single document
+    const rideTypes = await RideType.find({ isActive: true });
 
-    if (!doc || !doc.rideTypes) {
-      return res.json([]);
-    }
-
-    const activeRideTypes = doc.rideTypes.filter(
-      (ride) => ride.isActive
-    );
-
-    return res.json(activeRideTypes); // 🔥 IMPORTANT
+    return res.json(rideTypes);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error" });
