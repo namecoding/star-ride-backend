@@ -11,6 +11,6 @@ router.post("/change-password", protect, changePassword);
 router.get("/delete-account", protect, deleteAccount);
 
 router.post("/change-phone", protect, sendChangePhoneOTP); 
-router.get("/verify-change-phone", protect, verifyChangePhoneOTP);
+router.post("/verify-change-phone", protect, verifyChangePhoneOTP);
 
 export default router;
