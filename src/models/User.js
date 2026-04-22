@@ -54,6 +54,17 @@ const userSchema = new mongoose.Schema(
         default: [0, 0],
       },
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   
     
   },
@@ -70,6 +81,8 @@ userSchema.plugin(sanitizePlugin, {
     "otpLastSentAt",
     "otpLockedUntil",
     "__v",
+    "deletedAt",
+    "isDeleted"
   ],
 });
 

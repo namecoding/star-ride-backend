@@ -15,10 +15,14 @@ export const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // attach user to request
-      req.user = await User.findById(decoded.id).select("_id role");
+      req.user = await User.findById(decoded.id).select("_id role isDeleted");
 
       if (!req.user) {
         return res.status(401).json({ message: "User not found" });
+      }
+
+      if (req.user.isDeleted) {
+        return res.status(403).json({ message: "Account deactivated" });
       }
 
       next();
