@@ -102,7 +102,10 @@ userSchema.plugin(sanitizePlugin, {
     "otpLockedUntil",
     "__v",
     "deletedAt",
-    "isDeleted"
+    "isDeleted",
+    "changePhoneTarget",
+    "changePhoneOTPExpires",
+    "changePhoneOTP"
   ],
 });
 
