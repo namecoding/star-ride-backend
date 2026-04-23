@@ -14,7 +14,7 @@ router.post("/change-phone", protect, sendChangePhoneOTP);
 router.post("/verify-change-phone", protect, verifyChangePhoneOTP);
 router.post("/edit-account", protect, editAccount);
 
-router.post("/wallet-history", protect, myWalletHistory);
+router.get("/wallet-history", protect, myWalletHistory);
 
 
 export default router;
