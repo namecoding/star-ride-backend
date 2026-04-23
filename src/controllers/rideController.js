@@ -189,9 +189,9 @@ export const getMyRides = async (req, res) => {
       paymentMethod: ride.paymentMethod,
 
       status:
-        ride.status === "accepted"
-          ? "active"
-          : ride.status, // map backend → frontend
+  ride.status === "accepted" || ride.status === "pending"
+    ? "active"
+    : ride.status, // map backend → frontend
 
       driver: ride.driver
         ? {
