@@ -4,7 +4,7 @@ import {
   createRide,
   getPendingRides,
   acceptRide,
-  updateRideStatus, getRideTypes
+  updateRideStatus, getRideTypes, getMyRides
 } from "../controllers/rideController.js";
 import { seedRideTypes } from "../controllers/seedRideTypes.js";
 
@@ -23,6 +23,8 @@ router.post("/accept", protect, acceptRide);
 router.post("/status", protect, updateRideStatus);
 
 router.get('/ride-types', protect, getRideTypes)
+
+router.get('/my-ride', protect, getMyRides)
 
 
 //open seed route

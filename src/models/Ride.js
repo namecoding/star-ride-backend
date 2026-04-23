@@ -14,7 +14,13 @@ const rideSchema = new mongoose.Schema(
       default: null,
     },
 
+    vehicle: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+    },
+
     pickup: String,
+
     destination: String,
 
     pickupCoords: {
@@ -42,11 +48,24 @@ const rideSchema = new mongoose.Schema(
       default: "cash",
     },
 
+    cancelledBy: {
+      type: String,
+      enum: ["customer", "driver"],
+    },
+    
+    cancelReason: {
+      type: String,
+      default: "",
+    },
+    
+    cancelledAt: Date,
+
     status: {
       type: String,
       enum: [
         "pending",
         "accepted",
+        "arriving",
         "arrived",
         "ongoing",
         "completed",
@@ -54,6 +73,9 @@ const rideSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+    startedAt: Date,
+    completedAt: Date,
+    arrivedAt: Date,
   },
   { timestamps: true }
 );
