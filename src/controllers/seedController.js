@@ -75,6 +75,8 @@ export const seedWalletHistory = async (req, res) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
+    const now = Date.now();
+
     const transactions = [
       {
         user: userId,
@@ -84,6 +86,7 @@ export const seedWalletHistory = async (req, res) => {
         status: "success",
         method: "Paystack",
         reference: "PSK-29384756",
+        createdAt: new Date(now - 1 * 3600 * 1000),
       },
       {
         user: userId,
@@ -93,6 +96,7 @@ export const seedWalletHistory = async (req, res) => {
         status: "success",
         method: "Wallet",
         reference: "RIDE-001",
+        createdAt: new Date(now - 1 * 3600 * 1000),
       },
       {
         user: userId,
@@ -102,6 +106,7 @@ export const seedWalletHistory = async (req, res) => {
         status: "success",
         method: "Paystack",
         reference: "PSK-83920123",
+        createdAt: new Date(now - 1 * 3600 * 1000),
       },
       {
         user: userId,
@@ -111,6 +116,7 @@ export const seedWalletHistory = async (req, res) => {
         status: "success",
         method: "Wallet",
         reference: "RIDE-002",
+        createdAt: new Date(now - 1 * 3600 * 1000),
       },
       {
         user: userId,
@@ -120,6 +126,7 @@ export const seedWalletHistory = async (req, res) => {
         status: "pending",
         method: "Paystack",
         reference: "PSK-00000000",
+        createdAt: new Date(now - 1 * 3600 * 1000),
       },
     ];
 
