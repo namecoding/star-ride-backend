@@ -221,6 +221,62 @@ export const getMyRides = async (req, res) => {
   }
 };
 
+export const getMyActiveRide = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const ride = await Ride.findOne({
+      customer: userId,
+      status: { $in: ["pending", "accepted"] },
+    })
+      .populate("driver", "firstName lastName avatar")
+      .sort({ createdAt: -1 });
+
+    if (!ride) {
+      return res.json({ ride: null });
+    }
+
+    const formattedRide = {
+      id: ride._id,
+
+      pickup: ride.pickup,
+      destination: ride.destination,
+
+      distance: (ride.distanceInMeters / 1000).toFixed(1),
+
+      price: ride.rideType?.price || 0,
+
+      date: ride.createdAt,
+
+      duration: "—",
+
+      paymentMethod: ride.paymentMethod,
+
+      status: "active",
+
+      driver: ride.driver
+        ? {
+            name: `${ride.driver.firstName} ${ride.driver.lastName}`,
+            avatar: ride.driver.avatar || null,
+            car: "—",
+            plate: "—",
+            rating: 5,
+          }
+        : {
+            name: "Searching for driver...",
+            avatar: null,
+            car: "—",
+            plate: "—",
+            rating: 0,
+          },
+    };
+
+    res.json({ ride: formattedRide });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const getPendingRides = async (req, res) => {
   const rides = await Ride.find({ status: "pending" }).sort({ createdAt: -1 });
 

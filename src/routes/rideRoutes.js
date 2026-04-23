@@ -4,7 +4,7 @@ import {
   createRide,
   getPendingRides,
   acceptRide,
-  updateRideStatus, getRideTypes, getMyRides
+  updateRideStatus, getRideTypes, getMyRides, getMyActiveRide
 } from "../controllers/rideController.js";
 
 const router = express.Router();
@@ -24,6 +24,8 @@ router.post("/status", protect, updateRideStatus);
 router.get('/ride-types', protect, getRideTypes)
 
 router.get('/my-ride', protect, getMyRides)
+
+router.get('/active', protect, getMyActiveRide)
 
 
 export default router;
