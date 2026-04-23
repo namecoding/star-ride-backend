@@ -5,8 +5,8 @@ import morgan from "morgan";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import rideRoutes from "./routes/rideRoutes.js";
-import seedRoutes from "./routes/seedRoutes";
-import notificationRoutes from "./routes/notificationRoutes.js"
+import seedRoutes from "./routes/seedRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 
 const app = express();
@@ -26,7 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rides", rideRoutes);
 
-app.use('api/seed', seedRoutes)
+app.use('/api/seed', seedRoutes)
 
 app.use("/api/notifications", notificationRoutes)
 
