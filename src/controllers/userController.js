@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateOTP } from "../utils/otp.js";
 import Notification from "../models/Notifications.js";
+import WalletTransaction from "../models/WalletTransaction.js";
 
 export const getMe = async (req, res) => {
     res.json({
@@ -45,7 +46,6 @@ export const getMe = async (req, res) => {
       return res.status(500).json({ message: "Server error" });
     }
   };
-  
   
   export const deleteAccount = async (req, res) => {
     try {
@@ -308,3 +308,54 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const myWalletHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const { page = 1, limit = 10 } = req.query;
+
+    const transactions = await WalletTransaction.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    const total = await WalletTransaction.countDocuments({ user: userId });
+
+    // 🔥 format for frontend
+    const formatted = transactions.map((tx) => ({
+      id: tx._id,
+
+      title: tx.title,
+
+      date: new Date(tx.createdAt).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+
+      amount: tx.amount,
+
+      type: tx.type,
+      status: tx.status,
+
+      method: tx.method || "—",
+
+      reference: tx.reference || "—",
+    }));
+
+    res.json({
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      transactions: formatted,
+    });
+  } catch (error) {
+    console.log("error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
